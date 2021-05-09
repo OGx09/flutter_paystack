@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter_paystack/src/api/model/subaccount.dart';
 import 'package:flutter_paystack/src/api/model/transaction_api_response.dart';
 import 'package:flutter_paystack/src/api/request/bank_charge_request_body.dart';
 import 'package:flutter_paystack/src/models/bank.dart';
@@ -11,4 +14,7 @@ abstract class BankServiceContract {
       BankChargeRequestBody? requestBody, Map<String, String?> fields);
 
   Future<List<Bank>?>? fetchSupportedBanks();
+
+  Future<SubAccountResponse?> createSubAccountRequest(
+      SubAccountRequest subAccountRequest);
 }

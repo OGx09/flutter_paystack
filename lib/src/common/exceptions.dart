@@ -24,6 +24,10 @@ class ChargeException extends PaystackException {
   ChargeException(String? message) : super(message);
 }
 
+class SubAccountException extends PaystackException {
+  SubAccountException(String? message) : super(message);
+}
+
 class InvalidAmountException extends PaystackException {
   int amount = 0;
 

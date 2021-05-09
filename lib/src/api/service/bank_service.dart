@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:flutter_paystack/src/api/model/subaccount.dart';
 import 'package:flutter_paystack/src/api/model/transaction_api_response.dart';
 import 'package:flutter_paystack/src/api/request/bank_charge_request_body.dart';
 import 'package:flutter_paystack/src/api/service/base_service.dart';
@@ -12,6 +13,12 @@ import 'package:flutter_paystack/src/common/my_strings.dart';
 import 'package:flutter_paystack/src/models/bank.dart';
 import 'package:flutter_paystack/src/common/extensions.dart';
 import 'package:http/http.dart' as http;
+
+import 'constants/endpoints.dart';
+
+extension on http.Response {
+  Map<String, dynamic> get responseBody => json.decode(body);
+}
 
 class BankService with BaseApiService implements BankServiceContract {
   @override
@@ -87,6 +94,17 @@ class BankService with BaseApiService implements BankServiceContract {
       return banks;
     } catch (e) {}
     return null;
+  }
+
+  @override
+  Future<SubAccountResponse?> createSubAccountRequest(
+      SubAccountRequest subAccountRequest) async {
+    http.Response response = await http.post(
+        Endpoints.SUB_ACCOUNT_SPLIT.toUri(),
+        body: subAccountRequest.toJson(),
+        headers: headers);
+
+    return SubAccountResponse.fromJson(response.responseBody);
   }
 }
 
