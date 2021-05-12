@@ -224,6 +224,17 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                     ),
+                                    _horizontalSizeBox,
+                                    new Flexible(
+                                      flex: 2,
+                                      child: new Container(
+                                        width: double.infinity,
+                                        child: _getPlatformButton(
+                                          'Create SubAccount',
+                                          () => _handleCheckout(context),
+                                        ),
+                                      ),
+                                    )
                                   ],
                                 )
                               ],
@@ -242,6 +253,8 @@ class _HomePageState extends State<HomePage> {
   void _handleRadioValueChanged(int? value) {
     if (value != null) setState(() => _radioValue = value);
   }
+
+  void _handleCreateSubAccount() {}
 
   _handleCheckout(BuildContext context) async {
     if (_method != CheckoutMethod.card && _isLocal) {

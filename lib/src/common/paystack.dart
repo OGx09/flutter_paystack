@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_paystack/src/api/di/injectors.dart';
+import 'package:flutter_paystack/src/api/model/sub_account.dart';
 import 'package:flutter_paystack/src/api/service/bank_service.dart';
 import 'package:flutter_paystack/src/api/service/card_service.dart';
 import 'package:flutter_paystack/src/common/exceptions.dart';
@@ -13,7 +15,9 @@ import 'package:flutter_paystack/src/models/card.dart';
 import 'package:flutter_paystack/src/models/charge.dart';
 import 'package:flutter_paystack/src/models/checkout_response.dart';
 import 'package:flutter_paystack/src/transaction/card_transaction_manager.dart';
+import 'package:flutter_paystack/src/transaction/split_payment_manager.dart';
 import 'package:flutter_paystack/src/widgets/checkout/checkout_widget.dart';
+import 'package:flutter_paystack/src/widgets/common/input_formatters.dart';
 
 class PaystackPlugin {
   bool _sdkInitialized = false;
@@ -42,7 +46,6 @@ class PaystackPlugin {
 
     // Using cascade notation to build the platform specific info
     try {
-
       platformInfo = await PlatformInfo.fromMethodChannel(Utils.methodChannel);
       _sdkInitialized = true;
     } on PlatformException {
@@ -161,6 +164,12 @@ class _Paystack {
             context: context,
             publicKey: publicKey)
         .chargeCard();
+  }
+
+  Future<SubAccountResponse>? createSubAccount(
+      CreateSubAccountRequest subAccountRequest) {
+    return Injector.instance.provideSplitPaymentManager
+        .createSubAccount(subAccountRequest);
   }
 
   Future<CheckoutResponse> checkout(

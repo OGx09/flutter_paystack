@@ -57,3 +57,7 @@ bool _isDeletion(String? prevText, String newText) {
 
   return prevText.length > newText.length;
 }
+
+bool isNotNull<T>(List<dynamic> values) {
+  return !values.contains(null);
+}
