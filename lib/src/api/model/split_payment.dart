@@ -337,7 +337,8 @@ class SplitTransactionPaymentRequest {
   String? splitCode;
   String? authorizationCode;
 
-  SplitTransactionPaymentRequest({this.email, this.amount, this.splitCode});
+  SplitTransactionPaymentRequest(
+      {this.email, this.amount, this.splitCode, this.authorizationCode});
 
   SplitTransactionPaymentRequest.fromJson(Map<String, dynamic> json) {
     email = json['email'];

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_paystack/src/api/di/injectors.dart';
+import 'package:flutter_paystack/src/api/model/split_payment.dart';
 import 'package:flutter_paystack/src/api/model/sub_account.dart';
 import 'package:flutter_paystack/src/api/service/bank_service.dart';
 import 'package:flutter_paystack/src/api/service/card_service.dart';
@@ -154,6 +155,8 @@ class PaystackPlugin {
 class _Paystack {
   final String publicKey;
 
+  final splitPaymentManager = Injector.instance.provideSplitPaymentManager;
+
   _Paystack(this.publicKey);
 
   Future<CheckoutResponse> chargeCard(
@@ -167,9 +170,72 @@ class _Paystack {
   }
 
   Future<SubAccountResponse>? createSubAccount(
-      CreateSubAccountRequest subAccountRequest) {
-    return Injector.instance.provideSplitPaymentManager
-        .createSubAccount(subAccountRequest);
+      {required String businessName,
+      required String bankCode,
+      required String accountNumber,
+      double? percentageCharge}) {
+    CreateSubAccountRequest subAccountRequest = new CreateSubAccountRequest(
+        businessName: businessName,
+        bankCode: bankCode,
+        accountNumber: accountNumber,
+        percentageCharge: percentageCharge);
+    return splitPaymentManager.createSubAccount(subAccountRequest);
+  }
+
+  Future<SubAccountData>? getSubAccountById({required String idOrSlug}) {
+    return splitPaymentManager.getSubAccountById(idOrSlug: idOrSlug);
+  }
+
+  Future<List<SubAccountData>>? getSubAccounts() {
+    return splitPaymentManager.getSubAccounts();
+  }
+
+  Future<UpdateSubAccountData>? updateSubAccount(
+      {required String idOrSlug,
+      String? primaryContactEmail,
+      required double percentageCharge}) {
+    final updateSubAccountRequest = new UpdateSubAccountRequest(
+        primaryContactEmail: primaryContactEmail,
+        percentageCharge: percentageCharge);
+    return splitPaymentManager.updateSubAccount(
+        idOrSlug, updateSubAccountRequest);
+  }
+
+  Future<SplitPaymentResponse> createSplitTransaction(
+      {required String name,
+      required String type,
+      required String currency,
+      required List<Subaccounts>? subaccounts,
+      required String bearerType,
+      required String bearerSubaccount}) {
+    final splitPaymentRequest = SplitPaymentRequest(
+        name: name,
+        type: type,
+        currency: currency,
+        subaccounts: subaccounts,
+        bearerType: bearerType);
+    return splitPaymentManager.createSplitTransaction(splitPaymentRequest);
+  }
+
+  Future<SplitPaymentAuthorizationResponse>? chargeAuthorizationSplitPayment(
+      {required String email,
+      required String amount,
+      required String splitCode,
+      required String authorizationCode}) {
+    final splitPaymentRequest = SplitTransactionPaymentRequest(
+        email: email,
+        amount: amount,
+        splitCode: splitCode,
+        authorizationCode: authorizationCode);
+    return splitPaymentManager.chargeAuthorizationSplitPayment(
+        splitPaymentRequest: splitPaymentRequest);
+  }
+
+  Future<InitTransactionResponse>? splitTransactionPayment(
+      {required SplitTransactionPaymentRequest splitPaymentRequest}) {
+    final splitPaymentRequest = new SplitTransactionPaymentRequest();
+    return splitPaymentManager.splitTransactionPayment(
+        splitPaymentRequest: splitPaymentRequest);
   }
 
   Future<CheckoutResponse> checkout(

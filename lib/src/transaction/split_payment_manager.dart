@@ -26,8 +26,7 @@ class SplitPaymentManager {
     return Future.error("${subAccount.message}");
   }
 
-  Future<List<SubAccountData>> getSubAccounts(
-      {required String idOrSlug}) async {
+  Future<List<SubAccountData>> getSubAccounts() async {
     final subAccounts = await _service.fetchSubAccounts();
     if (subAccounts.status == true) {
       return Future.value(subAccounts.subAccountData);
@@ -36,8 +35,7 @@ class SplitPaymentManager {
   }
 
   Future<UpdateSubAccountData> updateSubAccount(
-      {required String idOrSlug,
-      required UpdateSubAccountRequest updateSubAccountRequest}) async {
+      String idOrSlug, UpdateSubAccountRequest updateSubAccountRequest) async {
     final subAccounts = await _service.updateSubAccount(
         idOrSlug: idOrSlug, updateSubAccountRequest: updateSubAccountRequest);
     if (subAccounts.status == true) {
@@ -47,7 +45,7 @@ class SplitPaymentManager {
   }
 
   Future<SplitPaymentResponse> createSplitTransaction(
-      {required SplitPaymentRequest splitPaymentRequest}) async {
+      SplitPaymentRequest splitPaymentRequest) async {
     final splitPayment =
         await _service.createSplitTransaction(splitPaymentRequest);
     if (splitPayment.status == true) {

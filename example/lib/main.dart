@@ -254,7 +254,9 @@ class _HomePageState extends State<HomePage> {
     if (value != null) setState(() => _radioValue = value);
   }
 
-  void _handleCreateSubAccount() {}
+  void _handleCreateSubAccount() {
+    d
+  }
 
   _handleCheckout(BuildContext context) async {
     if (_method != CheckoutMethod.card && _isLocal) {
