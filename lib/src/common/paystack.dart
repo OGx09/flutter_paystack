@@ -10,6 +10,7 @@ import 'package:flutter_paystack/src/api/service/card_service.dart';
 import 'package:flutter_paystack/src/common/exceptions.dart';
 import 'package:flutter_paystack/src/common/my_strings.dart';
 import 'package:flutter_paystack/src/common/platform_info.dart';
+import 'package:flutter_paystack/src/common/split_payment.dart';
 import 'package:flutter_paystack/src/common/string_utils.dart';
 import 'package:flutter_paystack/src/common/utils.dart';
 import 'package:flutter_paystack/src/models/card.dart';
@@ -20,9 +21,10 @@ import 'package:flutter_paystack/src/transaction/split_payment_manager.dart';
 import 'package:flutter_paystack/src/widgets/checkout/checkout_widget.dart';
 import 'package:flutter_paystack/src/widgets/common/input_formatters.dart';
 
-class PaystackPlugin {
+class PaystackPlugin extends MySplitPayment {
   bool _sdkInitialized = false;
   String _publicKey = "";
+  String? _privateKey;
   static late PlatformInfo platformInfo;
 
   /// Initialize the Paystack object. It should be called as early as possible
@@ -33,7 +35,7 @@ class PaystackPlugin {
   /// use [checkout] and you want this plugin to initialize the transaction for you.
   /// Please check [checkout] for more information
   ///
-  initialize({required String publicKey}) async {
+  initialize({required String publicKey, String? privateKey}) async {
     assert(() {
       if (publicKey.isEmpty) {
         throw new PaystackException('publicKey cannot be null or empty');
@@ -41,14 +43,21 @@ class PaystackPlugin {
       return true;
     }());
 
+    if (privateKey == null) {
+      print("Split payment rely on secret key to work");
+    }
+
     if (sdkInitialized) return;
 
     this._publicKey = publicKey;
+
+    //privateKey
 
     // Using cascade notation to build the platform specific info
     try {
       platformInfo = await PlatformInfo.fromMethodChannel(Utils.methodChannel);
       _sdkInitialized = true;
+      print("PUB_KEY $publicKey");
     } on PlatformException {
       rethrow;
     }
@@ -155,8 +164,6 @@ class PaystackPlugin {
 class _Paystack {
   final String publicKey;
 
-  final splitPaymentManager = Injector.instance.provideSplitPaymentManager;
-
   _Paystack(this.publicKey);
 
   Future<CheckoutResponse> chargeCard(
@@ -167,75 +174,6 @@ class _Paystack {
             context: context,
             publicKey: publicKey)
         .chargeCard();
-  }
-
-  Future<SubAccountResponse>? createSubAccount(
-      {required String businessName,
-      required String bankCode,
-      required String accountNumber,
-      double? percentageCharge}) {
-    CreateSubAccountRequest subAccountRequest = new CreateSubAccountRequest(
-        businessName: businessName,
-        bankCode: bankCode,
-        accountNumber: accountNumber,
-        percentageCharge: percentageCharge);
-    return splitPaymentManager.createSubAccount(subAccountRequest);
-  }
-
-  Future<SubAccountData>? getSubAccountById({required String idOrSlug}) {
-    return splitPaymentManager.getSubAccountById(idOrSlug: idOrSlug);
-  }
-
-  Future<List<SubAccountData>>? getSubAccounts() {
-    return splitPaymentManager.getSubAccounts();
-  }
-
-  Future<UpdateSubAccountData>? updateSubAccount(
-      {required String idOrSlug,
-      String? primaryContactEmail,
-      required double percentageCharge}) {
-    final updateSubAccountRequest = new UpdateSubAccountRequest(
-        primaryContactEmail: primaryContactEmail,
-        percentageCharge: percentageCharge);
-    return splitPaymentManager.updateSubAccount(
-        idOrSlug, updateSubAccountRequest);
-  }
-
-  Future<SplitPaymentResponse> createSplitTransaction(
-      {required String name,
-      required String type,
-      required String currency,
-      required List<Subaccounts>? subaccounts,
-      required String bearerType,
-      required String bearerSubaccount}) {
-    final splitPaymentRequest = SplitPaymentRequest(
-        name: name,
-        type: type,
-        currency: currency,
-        subaccounts: subaccounts,
-        bearerType: bearerType);
-    return splitPaymentManager.createSplitTransaction(splitPaymentRequest);
-  }
-
-  Future<SplitPaymentAuthorizationResponse>? chargeAuthorizationSplitPayment(
-      {required String email,
-      required String amount,
-      required String splitCode,
-      required String authorizationCode}) {
-    final splitPaymentRequest = SplitTransactionPaymentRequest(
-        email: email,
-        amount: amount,
-        splitCode: splitCode,
-        authorizationCode: authorizationCode);
-    return splitPaymentManager.chargeAuthorizationSplitPayment(
-        splitPaymentRequest: splitPaymentRequest);
-  }
-
-  Future<InitTransactionResponse>? splitTransactionPayment(
-      {required SplitTransactionPaymentRequest splitPaymentRequest}) {
-    final splitPaymentRequest = new SplitTransactionPaymentRequest();
-    return splitPaymentManager.splitTransactionPayment(
-        splitPaymentRequest: splitPaymentRequest);
   }
 
   Future<CheckoutResponse> checkout(

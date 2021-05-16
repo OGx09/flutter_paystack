@@ -28,10 +28,11 @@ class SplitPaymentManager {
 
   Future<List<SubAccountData>> getSubAccounts() async {
     final subAccounts = await _service.fetchSubAccounts();
+    print("MAINCLASSSSS ${subAccounts.message}");
     if (subAccounts.status == true) {
       return Future.value(subAccounts.subAccountData);
     }
-    return Future.error("${subAccounts.message}");
+    return Future.error("${subAccounts.toJson()}");
   }
 
   Future<UpdateSubAccountData> updateSubAccount(

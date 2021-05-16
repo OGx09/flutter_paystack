@@ -161,12 +161,16 @@ class BaseApiResponse {
   }
 }
 
-class SubAccountListResponse extends BaseApiResponse {
+class SubAccountListResponse {
   List<SubAccountData>? subAccountData;
+  bool? status;
+  String? message;
 
-  SubAccountListResponse(this.subAccountData);
+  SubAccountListResponse(this.subAccountData, this.status, this.message);
 
   SubAccountListResponse.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    message = json['message'];
     //new SubAccountData.fromJson(json['data'])
     subAccountData = <SubAccountData>[];
     if (json['data'] != null) {
@@ -178,6 +182,8 @@ class SubAccountListResponse extends BaseApiResponse {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    data['message'] = this.message;
     if (this.subAccountData != null) {
       data['data'] = this.subAccountData?.map((e) => e.toJson());
     }
